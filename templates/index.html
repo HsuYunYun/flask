@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>聊天室</title>
+    <!-- 載入 Socket.IO 用於即時通訊 -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <h2>即時聊天室</h2>
+    <!-- 訊息列表 -->
+    <ul id="chat"></ul>
+
+    <!-- 顯示登入的使用者名稱 -->
+    <p>歡迎：{{ username }}</p>
+    <!-- 訊息輸入框與送出按鈕 -->
+    訊息：<input id="msg" placeholder="輸入訊息">
+    <button onclick="sendMsg()">送出</button>
+
+    <script>
+        // 建立 Socket.IO 連線
+        const socket = io();
+
+        // 監聽 'message' 事件，收到新訊息時執行
+        socket.on('message', data => {
+            // data: {id, text}
+            const li = document.createElement('li'); // 建立 li 元素
+            li.id = 'msg-' + data.id;                // 設定每則訊息唯一 id
+            li.textContent = data.text;              // 設定訊息內容
+
+            // 新增刪除按鈕
+            const delBtn = document.createElement('button');
+            delBtn.textContent = '刪除';
+            // 點擊刪除按鈕時，發送 'delete_message' 事件給伺服器
+            delBtn.onclick = function() {
+                socket.emit('delete_message', data.id);
+            };
+            li.appendChild(delBtn); // 把刪除按鈕加到 li
+
+            // 把訊息加到聊天室列表
+            document.getElementById('chat').appendChild(li);
+        });
+
+        // 監聽 'delete_message' 事件，收到時移除對應訊息
+        socket.on('delete_message', id => {
+            const li = document.getElementById('msg-' + id);
+            if (li) li.remove();
+        });
+
+        // 送出訊息函式
+        function sendMsg() {
+            const msg = document.getElementById('msg').value; // 取得輸入框內容
+            if (msg) {
+                // 發送 'message' 事件到伺服器，內容包含使用者名稱與訊息
+                socket.emit('message', {text: "{{ username }}：" + msg});
+                document.getElementById('msg').value = ''; // 清空輸入框
+            }
+        }
+    </script>
+</body>
+</html>
