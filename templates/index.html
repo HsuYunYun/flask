@@ -10,6 +10,11 @@
     <p>歡迎：{{ username }}</p>
     訊息：<input id="msg" placeholder="輸入訊息">
     <button onclick="sendMsg()">送出</button>
+    <br>
+    <form action="{{ url_for('logout') }}" method="post">
+        <button type="submit">登出</button>
+    </form>
+    
 
     <script>
         const socket = io();
@@ -43,6 +48,6 @@
             }
         }
     </script>
-    <a href="{{ url_for('logout') }}">登出</a>
+    
 </body>
 </html>
