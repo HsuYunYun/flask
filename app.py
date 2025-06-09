@@ -19,7 +19,10 @@ def login():
         else:
             return render_template('login.html', error='請輸入使用者名稱')
     return render_template('login.html')
-
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('login'))
 @app.route('/')
 def index():
     if 'username' not in session:
